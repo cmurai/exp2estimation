@@ -35,7 +35,7 @@ rlsim = function(x,R=NULL,T) {
     beta = x[1]
     alpha = x[2]
     lambda = x[3]
-    pi = x[4]    # distinguishing from special value pi in R
+    pie = x[4]  # distinguishing from special value pi in R
     rho = x[5]
     w_l = x[6]  # for low stake trials
     w_h = x[7]  # for high stake trials
@@ -72,22 +72,14 @@ rlsim = function(x,R=NULL,T) {
         e = numeric(2)  # eligibility trace
 
         # Calculate probability to take action 1 in stage 1 (regardless of state)
-        p = 1 / (1 + exp(beta * ((Q_H[2] + pi * rep2[t] + rho * resp2[t]) - (Q_H[1] + pi * rep1[t] + rho * resp1[t]))))
+        p = 1 / (1 + exp(beta * ((Q_H[2] + pie * rep2[t] + rho * resp2[t]) - (Q_H[1] + pie * rep1[t] + rho * resp1[t]))))
         p = max(min(p, 0.9999), 0.00001)
 
         # Determine which state the subject lands on 
-        if (rbinom(1,1,0.5) == 1) {  # State 1 for stage 1
-            s1[t] = 1
-        } else {                     # State 2 for stage 1
-            s1[t] = 2
-        }
+        s1[t] = sample(c(1,2),1)  # state 1 or 2 for stage 1
         
         # Determine how the action choices will be placed
-        if(rbinom(1,1,0.5) == 1) {  # Action 1 shown at left
-            s1L[t] = 1    
-        } else {                    # Action 1 shown at right
-            s1L[t] = 0
-        }
+        s1L[t] = rbinom(1,1,0.5)  # Action 1 shown at right(0) or left(1)
 
         # Determine the action made by the subject 
         if (runif(1) < p) {  # Action 1 taken -> State 3
@@ -99,8 +91,6 @@ rlsim = function(x,R=NULL,T) {
             s2[t] = 4
             r[t] = R[t,2] * stake[t]  # Give reward for state 4
         }
-
-        
 
         # Update state-action value
         if (t < T) {
@@ -122,7 +112,6 @@ rlsim = function(x,R=NULL,T) {
             } else {
                 Q_H[c[t]] = w_h * Q_MB[c[t]] + (1-w_h) * Q_MF[s1[t],c[t]]
             }
-
 
             # Update indicator functions 
             if (t > 1 && s2[t] == 3) {
