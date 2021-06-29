@@ -1,7 +1,10 @@
 # Parameter fit
 paramfit = function(modelfunc, df, nParam, prior=NULL) {
-    # sublist = dplyr::distinct(df, subject)$subject
-    sublist = c(1)
+    if ('subject' %in% df) {
+        sublist = dplyr::distinct(df, subject)$subject
+    } else {
+        sublist = c(1)
+    }
     nSubject = length(sublist) 
     
     lml = numeric(nSubject)
