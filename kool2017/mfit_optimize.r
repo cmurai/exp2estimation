@@ -19,7 +19,7 @@ mfit_optimize = function(param,df,nstarts=5){
     beta = param[1]
     alpha = param[2]
     lambda = param[3]
-    pi = param[4]
+    pie = param[4]  # distinguishing from special value pi in R
     rho = param[5]
     w_l = param[6]
     w_h = param[7]
@@ -50,7 +50,7 @@ mfit_optimize = function(param,df,nstarts=5){
 
     # Calculate Q
     for (t in 1:T) {
-        p = 1 / (1 + exp(beta * ((Q_H[2] + pi * rep2[t] + rho * resp2[t]) - (Q_H[1] + pi * rep1[t] + rho * resp1[t]))))
+        p = 1 / (1 + exp(beta * ((Q_H[2] + pie * rep2[t] + rho * resp2[t]) - (Q_H[1] + pie * rep1[t] + rho * resp1[t]))))
         p = max(min(p, 0.9999), 0.00001)
 
         ll = ll + (c[t] == 1) * log(p) + (c[t] == 2) * log(1-p)
