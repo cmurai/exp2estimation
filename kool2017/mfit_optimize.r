@@ -1,13 +1,13 @@
-mfit_optimize = function(param,df,nstarts=5){
+mfit_optimize = function(param,df,prior){
     # Optimze data from SARSA(lambda)-TD model
     # 
-    # USAGE : df = mfit_optimize(likfun,param,df,nstarts=5)
+    # USAGE : df = mfit_optimize(likfun,param,df,prior)
     # 
     # INPUTS :
     #   likfun = likelihood function handle
     #   param = [K x 1] parameter structure
     #   df = [T x 11] dataframe of action data
-    #   nstarts (optional) = number of random starts
+    #   prior = information about prior distribution of parameters
     # 
     # OUTPUTS :
     #   results = structure with the following fields 
@@ -63,7 +63,7 @@ mfit_optimize = function(param,df,nstarts=5){
             Q_MF[3,s2[t]-2] = Q_MF[3,s2[t]-2] + alpha * delta2 * e2[s2[t]-2]
 
             delta1 = Q_MF[3,s2[t]-2] - Q_MF[s1[t],c[t]]
-            e1[s[t],c[t]] = e1[s1[t],c[t]] + 1
+            e1[s1[t],c[t]] = e1[s1[t],c[t]] + 1
             Q_MF[s1[t],c[t]] = Q_MF[s1[t],c[t]] + alpha * delta1 * lambda * e1[s1[t],c[t]]
 
             # Model-based
@@ -77,5 +77,14 @@ mfit_optimize = function(param,df,nstarts=5){
             }
         }
     }
-    return(list(negll = -ll))
+    if (is.null(prior)) {
+        lprior = 0
+    } else {
+        lprior = dgamma(beta, shape = prior$gamma_shape, rate = prior$gamma_rate, log = TRUE) + 
+            dunif(alpha, log = TRUE) + dunif(lambda, log = TRUE) + 
+            dnorm(pie, mean = prior$normal_mean, sd = sqrt(prior$normal_var), log = TRUE) + 
+            dnorm(rho, mean = prior$normal_mean, sd = sqrt(prior$normal_var), log = TRUE) + 
+            dunif(w_l, log = TRUE) + dunif(w_h, log = TRUE)
+    }
+    return(list(negll = - ll - lprior))
 }
