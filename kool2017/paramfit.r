@@ -62,8 +62,8 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
                 diag.inv = diag.inv, se = se))
 }
 
-ublist <- c(100, 1.0, 100, 100, 100, 1.0, 1.0)
-lblist <- c(0.0, 0.0, 0.0, 0.0,-100, 0.0, 0.0)
+ublist <- c(10, 1.0, 10, 10, 10, 1.0, 1.0)
+lblist <- c(0.0, 0.0, 0.0, 0.0,-10, 0.0, 0.0)
 
 # Objective function to be minimized 
 func_minimize = function(param, modelfunc, df, prior) {
