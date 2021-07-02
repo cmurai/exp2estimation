@@ -2,7 +2,7 @@ r_values = function(T) {
     x = matrix(0, nrow = T, ncol = 4) 
 
     # set initial values 
-    x[1,] = runif(4)
+    x[1,] = runif(4, 0.25, 0.75)
 
     # sample drift for gaussian random walk
     w = matrix(rnorm(T*4, sd = 0.025), nrow=T, ncol=4)
