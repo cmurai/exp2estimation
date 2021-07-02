@@ -48,8 +48,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
         }
         
         neglp[n] = nll
-        diag.inv[n,] = diag(solve(H, tol = 10^(-100)))
-        se[n,] = sqrt(pmax(diag.inv[n,],0) / T)
+        se[n,] = sqrt(pmax(diag(solve(H, tol = 10^(-100))),0))
         
         paramlist[n,] = paramest
         
@@ -63,7 +62,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
 }
 
 ublist <- c(10, 1.0, 10, 10, 10, 1.0, 1.0)
-lblist <- c(0.0, 0.0, 0.0, 0.0,-10, 0.0, 0.0)
+lblist <- c(0.0,0.0,0.0,0.0,-10, 0.0, 0.0)
 
 # Objective function to be minimized 
 func_minimize = function(param, modelfunc, df, prior) {
