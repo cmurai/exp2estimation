@@ -15,7 +15,7 @@ func_minimize_SS = function(param, modelfunc, data, prior){
 #------------------------------#
 
 # 全てのパラメータを個人ごとに推定するためにデータの整理・変数の定義を行う(スライド14)
-paramfit = function(modelfunc, data, nParam, prior=NULL){
+paramfit = function(modelfunc, df, nParam, prior=NULL){
     if ('subject' %in% df) {
         sublist = dplyr::distinct(df, subject)$subject
     } else {
