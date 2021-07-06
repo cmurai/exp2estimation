@@ -33,9 +33,7 @@ rlsim = function(x,T,R=NULL) {
 
     for (t in 1:T) {
         if (t != 1 && ch1[t-1] == 1) {
-            pA = 1 / (1 + exp(beta1 * (Q_H[1,2] - (Q_H[1,1] + p))))
-        } else if (t != 1 && ch1[t-1] == 2) {
-            pA = 1 / (1 + exp(beta1 * ((Q_H[1,2] + p) - Q_H[1,1])))
+            pA = 1 / (1 + exp(beta1 * ((Q_H[1,2] + p*(ch1[t-1] == 2)) - (Q_H[1,1] + p*(ch1[t-1] == 1)))))
         } else {
             pA = 1 / (1 + exp(beta1 * (Q_H[1,2] - Q_H[1,1])))
         }
@@ -46,7 +44,7 @@ rlsim = function(x,T,R=NULL) {
         pB = max(min(pB,0.999),0.0001)
         pC = max(min(pC,0.999),0.0001)
 
-        bc = rbinom(1,1,0.7)  # common or rare transition to stage 2
+        bc = rbinom(1,1,0.7)  # common(1) or rare(0) transition to stage 2
 
         # Decide choice with uniform random; left if smaller than pA
         if (runif(1) < pA) {  # choose left
@@ -116,6 +114,7 @@ rlsim = function(x,T,R=NULL) {
             Q_MB[1] = pA1B * max(Q_MF[2,1],Q_MF[2,2]) + pA1C * max(Q_MF[3,1],Q_MF[3,2])
             Q_MB[2] = pA2B * max(Q_MF[2,1],Q_MF[2,2]) + pA2C * max(Q_MF[3,1],Q_MF[3,2])
 
+            # Hybrid
             Q_H[1,] = w * Q_MB + (1-w) * Q_MF[1,]
             Q_H[2,] = Q_MF[2,]
             Q_H[3,] = Q_MF[3,]
