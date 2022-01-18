@@ -1,6 +1,6 @@
 # Parameter fit
 paramfit = function(modelfunc, df, nParam, prior=NULL) {
-    if ('subject' %in% df) {
+    if ('subject' %in% colnames(df)) {
         sublist = dplyr::distinct(df, subject)$subject
     } else {
         sublist = c(1)
@@ -26,7 +26,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
         fvalmin = Inf
         T = nrow(subdf)
         
-        for(idx in 1:20){
+        for(idx in 1:100){
             # set initial value 
             initparam = runif(nParam)
             
@@ -47,7 +47,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
             }
         }
         
-        neglp[n] = nll
+        neglp[n] = fvalmin
         se[n,] = sqrt(pmax(diag(solve(H, tol = 10^(-100))),0))
         
         paramlist[n,] = paramest
@@ -61,13 +61,18 @@ paramfit = function(modelfunc, df, nParam, prior=NULL) {
                 diag.inv = diag.inv, se = se))
 }
 
-ublist <- c(10, 1.0, 10, 10, 10, 1.0, 1.0)
-lblist <- c(0.0,0.0,0.0,0.0,-10, 0.0, 0.0)
+# ublist <- c(10, 1.0, 10, 10, 10, 1.0, 1.0)
+# lblist <- c(0.0,0.0,0.0,0.0,-10, 0.0, 0.0)
+
+ublist <- c(20, 1.0,1.0,1.0,1.0, 20, 20)
+lblist <- c(0.0,0.0,0.0,0.0,0.0,-20,-20)
 
 # Objective function to be minimized 
 func_minimize = function(param, modelfunc, df, prior) {
-    ret = modelfunc(param,df,prior)
+    # ret = modelfunc(param,df,prior)
+    ret = modelfunc(param,df)
     
     # Return negative log-likelihood
-    return (ret$negll)
+    # return (ret$negll)
+    return (ret)
 }

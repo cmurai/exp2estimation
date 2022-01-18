@@ -42,7 +42,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL){
         fvalmin = Inf
         T = nrow(subdf)
         
-        for(idx in 1:20){
+        for(idx in 1:25){
             # set initial value 
             initparam = runif(nParam)
             
@@ -64,7 +64,7 @@ paramfit = function(modelfunc, df, nParam, prior=NULL){
         }
         
         neglp[n] = nll
-        se[n,] = sqrt(pmax(diag(solve(H)),0))
+        se[n,] = sqrt(pmax(diag(solve(H)),0) / T)
 
         paramlist[n,] = paramest
 

@@ -38,7 +38,7 @@ mfit_optimize = function(param,df,prior){
     T = nrow(df)
 
     # Initialize state-action value Q
-    Q_MF = matrix(0,nrow=3,ncol=2)
+    Q_MF = matrix(4.5,nrow=3,ncol=2)
     Q_MB = numeric(2)
     Q_H = numeric(2)
 
@@ -50,6 +50,8 @@ mfit_optimize = function(param,df,prior){
 
     # Calculate Q
     for (t in 1:T) {
+        if (r[t] < 0) next  # if no response, skip trial calculation
+
         p = 1 / (1 + exp(beta * ((Q_H[2] + pie * rep2[t] + rho * resp2[t]) - (Q_H[1] + pie * rep1[t] + rho * resp1[t]))))
         p = max(min(p, 0.9999), 0.00001)
 
@@ -58,23 +60,33 @@ mfit_optimize = function(param,df,prior){
         # Update Q
         if (t < T) {
             # Model-free
-            delta2 = r[t] - Q_MF[3,s2[t]-2]
-            e2[s2[t]-2] = e2[s2[t]-2] + 1
-            Q_MF[3,s2[t]-2] = Q_MF[3,s2[t]-2] + alpha * delta2 * e2[s2[t]-2]
+            delta1 = Q_MF[3,s2[t]] - Q_MF[s1[t],c[t]]
+            Q_MF[s1,c[t]] = Q_MF[s1,c[t]] + alpha*delta1
 
-            delta1 = Q_MF[3,s2[t]-2] - Q_MF[s1[t],c[t]]
-            e1[s1[t],c[t]] = e1[s1[t],c[t]] + 1
-            Q_MF[s1[t],c[t]] = Q_MF[s1[t],c[t]] + alpha * delta1 * lambda * e1[s1[t],c[t]]
+            delta2 = r[t] - Q_MF[3,s2[t]]
+            
+            Q_MF[3,s2[t]] = Q_MF[3,s2[t]] + alpha * delta2
+            Q_MF[s1[t],c[t]] = Q_MF[s1[t],c[t]] + alpha * lambda * delta2
+
+            # delta2 = r[t] - Q_MF[3,s2[t]]
+            # e2[s2[t]] = e2[s2[t]] + 1
+            # Q_MF[3,s2[t]] = Q_MF[3,s2[t]] + alpha * delta2 * e2[s2[t]]
+
+            # delta1 = Q_MF[3,s2[t]] - Q_MF[s1[t],c[t]]
+            # e1[s1[t],c[t]] = e1[s1[t],c[t]] + 1
+            # Q_MF[s1[t],c[t]] = Q_MF[s1[t],c[t]] + alpha * delta1 * lambda * e1[s1[t],c[t]]
 
             # Model-based
-            Q_MB[c[t]] = Q_MF[3,s2[t]-2]
+            Q_MB[c[t]] = Q_MF[3,s2[t]]
 
             # Hybrid model
-            if (stake[t] == 1){
-                Q_H[c[t]] = w_l * Q_MB[c[t]] + (1-w_l) * Q_MF[s1[t],c[t]]
-            } else {
-                Q_H[c[t]] = w_h * Q_MB[c[t]] + (1-w_h) * Q_MF[s1[t],c[t]]
-            }
+            w = ifelse(stake[t] == 1, w_l, w_h)
+            Q_H[c[t]] = w * Q_MB[c[t]] + (1-w) * Q_MF[s1[t],c[t]]
+            # if (stake[t] == 1){
+            #     Q_H[c[t]] = w_l * Q_MB[c[t]] + (1-w_l) * Q_MF[s1[t],c[t]]
+            # } else {
+            #     Q_H[c[t]] = w_h * Q_MB[c[t]] + (1-w_h) * Q_MF[s1[t],c[t]]
+            # }
         }
     }
     if (is.null(prior)) {
